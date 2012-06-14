@@ -16,3 +16,6 @@ require 'bio-ipcress'
 
 class Test::Unit::TestCase
 end
+
+
+DATA_DIR = File.join(File.dirname(__FILE__), 'data','Ipcress')

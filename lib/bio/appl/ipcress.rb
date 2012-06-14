@@ -1,3 +1,6 @@
+require 'bio'
+require 'tempfile'
+
 module Bio
   class Ipcress
     # A full Ipcress result looks something like this. Parse it into an array of Ipcress::Result objects
@@ -57,6 +60,60 @@ module Bio
         results.push result
       end
       return results
+    end
+    
+    # Run ipcress
+    #
+    # * primer_set: a PrimerSet object with defined forward and reverse primers
+    # * fasta_file: a String path to a fasta file that will be used as template
+    # * options hash: contains less-used parameters
+    # ** :min_distance: the minimum length of product to be amplified (default 100)
+    # ** :max_distance: the maxmimum length of product to be amplified (default 1000)
+    # ** :ipcress_path: path the ipcress executable (default 'ipcress')
+    #
+    # Return an array of parsed Result objects
+    def self.run(primer_set, fasta_file, options={})
+      raise unless primer_set.kind_of?(PrimerSet)
+      raise unless fasta_file.kind_of?(String)
+      options[:ipcress_path] ||= 'ipcress'
+      
+      Tempfile.open('ipcress') do |tempfile|
+        # Write a tempfile that contains the primer set to be queried
+        primers = primer_set.to_ipcress_format(options)
+        tempfile.puts primers
+        tempfile.close
+        
+        command = [
+          options[:ipcress_path],
+          tempfile.path,
+          fasta_file,
+        ]
+        Bio::Command.call_command_open3(command) do |stdin, stdout, stderr|
+          out = stdout.read
+          raise stderr.read if out == '' #if there is a problem running ipcress e.g. the fasta file isn't found
+          
+          return parse(out)
+        end
+      end
+    end
+    
+    # A class to represent a pair of primers that will be used by Ipcress
+    # to amplify from template DNA in-silico
+    class PrimerSet
+      attr_accessor :forward_primer, :reverse_primer
+      
+      def initialize(forward_primer, reverse_primer)
+        @forward_primer = forward_primer
+        @reverse_primer = reverse_primer
+      end
+      
+      # To a string in the "ipcress file" format required for ipcress usage
+      def to_ipcress_format(options={})
+        options ||= {}
+        options[:min_distance] ||= 100
+        options[:max_distance] ||= 1000
+        "ID1 #{@forward_primer} #{@reverse_primer} #{options[:min_distance]} #{options[:max_distance]}"
+      end
     end
 
     # A collection of Ipcress Result objects for a given run

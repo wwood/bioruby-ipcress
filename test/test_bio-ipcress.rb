@@ -40,7 +40,7 @@ ipcress: gi|335929284|gb|JN048683.1|:filter(unmasked) AE12_pmid21856836_16S 502 
     assert_equal 1, res.forward_mismatches
     assert_equal 1, res.reverse_mismatches
   end
-  
+
   should "test multi-experiment results" do
     ipcress = "
 Ipcress result
@@ -99,10 +99,10 @@ ipcress: gi|335929284|gb|JN048683.1|:filter(unmasked) AE12_pmid21856836_16S 470 
     assert_equal 3, results.length
     assert_equal 5, results[0].forward_mismatches
   end
-  
+
   should "test recalculation of matches" do
     res = Bio::Ipcress::Result.new
-    
+
     #...AAACTTAAAGGAATTGGCGG......................... # forward
     #   ||||| ||| |||||| |||-->
     #5'-AAACTYAAAKGAATTGRCGG-3' 3'-CRTGTGTGGCGGGCA-5' # primers
@@ -113,13 +113,57 @@ ipcress: gi|335929284|gb|JN048683.1|:filter(unmasked) AE12_pmid21856836_16S 470 
     res.reverse_matching_sequence = 'CGTGTGTGGCGGGCA'
     res.reverse_primer_sequence = 'CRTGTGTGGCGGGCA'
     assert_equal [0,0], res.recalculate_mismatches_from_alignments
-    
+
     res.reverse_primer_sequence = 'CRTGTGTGGCGGGCT'
     assert_equal [0,1], res.recalculate_mismatches_from_alignments
-    
-    
+
     res.forward_primer_sequence = 'AAACTRAAAKGAATTGRCGG'
     res.reverse_primer_sequence = 'CRTGTGTGGCGGGCA'
     assert_equal [1,0], res.recalculate_mismatches_from_alignments, "mismatching wobble R"
   end
+
+  should "primer set to ipcress format" do
+    primer_set = Bio::Ipcress::PrimerSet.new('AAT','GTG')
+
+    assert_equal 'ID1 AAT GTG 100 1000', primer_set.to_ipcress_format
+    assert_equal 'ID1 AAT GTG 3 700', primer_set.to_ipcress_format({:min_distance => 3, :max_distance => 700})
+  end
+
+  should "run ipcress ok" do
+    primer_set = Bio::Ipcress::PrimerSet.new('GGTCACTGCTA','GGCTACCTTGTTACGACTTAAC') #the first and last bits of the Methanocella_conradii_16s.fa
+    results = Bio::Ipcress.run(primer_set, File.join(DATA_DIR, 'Methanocella_conradii_16s.fa'), {:min_distance => 2, :max_distance => 10000})
+    assert_equal 1, results.length
+    assert_equal 'ID1', results[0].experiment_name
+  end
+
+  should "return empty array when ipcress finds nadda" do
+    primer_set = Bio::Ipcress::PrimerSet.new('AAAAAAAAAAAAAAAA','TTTTTTTTTTTTTTTTT') #the first and last bits of the Methanocella_conradii_16s.fa
+    results = Bio::Ipcress.run(primer_set, File.join(DATA_DIR, 'Methanocella_conradii_16s.fa'))
+    assert_kind_of Array, results
+    assert_equal 0, results.length
+  end
+
+  # This test is handled by bioruby's Bio::Command, so eh
+  # should "raise exception when there is a problem running ipcress" do
+  # primer_set = Bio::Ipcress::PrimerSet.new('AAAAAAAAAAAAAAAA','TTTTTTTTTTTTTTTTT') #the first and last bits of the Methanocella_conradii_16s.fa
+  # assert_raise RuntimeError do
+  # Bio::Ipcress.run(primer_set, File.join(DATA_DIR, 'Methanocella_conradii_16s.fa'), :ipcress_path => 'not_ipcress')
+  # end
+  # end
+  
+  should "run should complain about bad inputs" do
+    assert_raise RuntimeError do
+      Bio::Ipcress.run(nil, 'abc.fa')
+    end
+    assert_raise RuntimeError do
+      Bio::Ipcress.run(Bio::Ipcress::PrimerSet.new('GGTCACTGCTA','GGCTACCTTGTTACGACTTAAC'), [])
+    end
+  end
+  
+  should "run sensibly when the fasta file is not found" do
+    assert_raise RuntimeError do
+      Bio::Ipcress.run(Bio::Ipcress::PrimerSet.new('GGTCACTGCTA','GGCTACCTTGTTACGACTTAAC'), 'notafasta_file_fo_so.fa')
+    end
+  end
+
 end
