@@ -29,23 +29,6 @@ results[0].target #=> "gi|335929284|gb|JN048683.1|:filter(unmasked) Methanocella
 ```
 
 A full anatomy of a parsed iPCRess result:
-
-    assert_equal 'AE12_pmid21856836_16S', res.experiment_name
-    assert_equal 'A B', res.primers
-    assert_equal 'gi|335929284|gb|JN048683.1|:filter(unmasked) Methanocella conradii HZ254 16S ribosomal RNA gene, partial sequence',
-      res.target
-    assert_equal '19/20 14/15', res.matches
-    assert_equal '502 bp (range 2-10000)', res.product
-    assert_equal 'forward', res.result_type
-    assert_equal 'AAACTTAAAGGAATTGGCGG', res.forward_matching_sequence
-    assert_equal 'AAACTYAAAKGAATTGRCGG', res.forward_primer_sequence
-    assert_equal 'CRTGTGTGGCGGGCA', res.reverse_primer_sequence
-    assert_equal 'CGTGTGTGGCGGGCA', res.reverse_matching_sequence
-    assert_equal 502, res.length
-    assert_equal 826, res.start
-    assert_equal 1, res.forward_mismatches
-    assert_equal 1, res.reverse_mismatches
-
 ```
 ** Message: Loaded [1] experiments
 
@@ -89,7 +72,7 @@ bio-ipcress is currently unpublished. However, if you use this software, perhaps
 
 ## Biogems.info
 
-This Biogem is published at [#bio-ipcress](http://biogems.info/index.html)
+This Biogem is published at http://biogems.info/index.html#bio-ipcress
 
 ## Copyright
 
