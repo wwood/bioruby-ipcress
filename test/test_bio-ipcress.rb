@@ -165,5 +165,14 @@ ipcress: gi|335929284|gb|JN048683.1|:filter(unmasked) AE12_pmid21856836_16S 470 
       Bio::Ipcress.run(Bio::Ipcress::PrimerSet.new('GGTCACTGCTA','GGCTACCTTGTTACGACTTAAC'), 'notafasta_file_fo_so.fa')
     end
   end
+  
+  should "run with multiple hits" do
+    primer_set = Bio::Ipcress::PrimerSet.new('GGTCACTGCTA','GGCTACCTTGTTACGACTTAAC') #the first and last bits of the Methanocella_conradii_16s.fa
+    results = Bio::Ipcress.run(primer_set, File.join(DATA_DIR, 'Methanocella_conradii_16s_2_sequences.fa'), {:min_distance => 2, :max_distance => 10000})
+    assert_equal 2, results.length
+    assert_equal 'ID1', results[0].experiment_name
+    assert_equal 'gi|335929284|gb|JN048683.1|:filter(unmasked) Methanocella conradii HZ254 16S ribosomal RNA gene, partial sequence', results[0].target
+    assert_equal '2nd:filter(unmasked)', results[1].target
+  end
 
 end

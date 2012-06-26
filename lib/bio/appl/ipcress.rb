@@ -70,6 +70,7 @@ module Bio
     # ** :min_distance: the minimum length of product to be amplified (default 100)
     # ** :max_distance: the maxmimum length of product to be amplified (default 1000)
     # ** :ipcress_path: path the ipcress executable (default 'ipcress')
+    # ** :mismatches: number of mismatches allowable (-m parameter to ipcress binary, default 0)
     #
     # Return an array of parsed Result objects
     def self.run(primer_set, fasta_file, options={})
@@ -85,9 +86,14 @@ module Bio
         
         command = [
           options[:ipcress_path],
-          tempfile.path,
-          fasta_file,
         ]
+        if options[:mismatches]
+          command.push '-m'
+          command.push options[:mismatches].to_s
+        end
+        command.push tempfile.path
+        command.push fasta_file
+
         Bio::Command.call_command_open3(command) do |stdin, stdout, stderr|
           out = stdout.read
           raise stderr.read if out == '' #if there is a problem running ipcress e.g. the fasta file isn't found
