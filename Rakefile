@@ -17,8 +17,8 @@ Jeweler::Tasks.new do |gem|
   gem.name = "bio-ipcress"
   gem.homepage = "http://github.com/wwood/bioruby-ipcress"
   gem.license = "MIT"
-  gem.summary = %Q{TODO: one-line summary of your gem}
-  gem.description = %Q{TODO: longer description of your gem}
+  gem.summary = %Q{a programmatic interface to the iPCRess in-silico PCR software}
+  gem.description = %Q{a programmatic interface to the iPCRess in-silico PCR software. iPCRess is part of the exonerate suite.}
   gem.email = "gmail.com after donttrustben"
   gem.authors = ["Ben J Woodcroft"]
   # dependencies defined in Gemfile
