@@ -17,7 +17,7 @@ results = Bio::Ipcress.run(
   primer_set,
   'Methanocella_conradii_16s.fa', #this file is in the test/data/Ipcress directory
   {:min_distance => 2, :max_distance => 10000})
-#=> A Bio::Ipcress::Result object, parsed from
+#=> An array of Bio::Ipcress::Result objects, parsed from
 #
 #Ipcress result
 #--------------
@@ -59,8 +59,9 @@ res.forward_mismatches #=> 1
 res.reverse_mismatches #=> 1
 ```
 
-There appears to be a slight bug in iPCRess, in the way it handles primers with 'wobble' bases like AAACT*Y*,
-which indicates that both AAACT*C* and AAACT*T* are added as primers.
+There appears to be a slight bug in iPCRess, in the way it handles primers with 'wobble' bases like the
+last base of AAACTY,
+which indicates that both AAACTC and AAACTT are added as primers.
 IPCress always suggests that there is at least a single mismatch,
 when this is not always the case. To workaround this, the
 ```Result#recalculate_mismatches_from_alignments``` method re-computes the 
